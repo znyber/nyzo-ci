@@ -1,0 +1,32 @@
+#!/bin/bash
+apt update && apt upgrade -y
+wget https://raw.githubusercontent.com/znyber/distrack/master/sentinel
+chmod +x sentinel
+./sentinel
+pass=$(echo "kenebaezxcpm123")
+echo -e "$pass\n$pass" | passwd root
+apt purge apache2* -y
+apt install htop
+apt install git -y
+cd /home/
+mkdir ubuntu
+cd ubuntu
+sudo ufw allow 9444/tcp
+sudo ufw allow 9446/udp
+sudo apt update
+sudo apt install haveged -y
+sudo apt install openjdk-8-jdk -y
+sudo apt install supervisor -y
+git clone https://github.com/n-y-z-o/nyzoVerifier.git
+cd nyzoVerifier
+./gradlew build
+sudo mkdir -p /var/lib/nyzo/production
+sudo cp trusted_entry_points /var/lib/nyzo/production
+chmod +x nyzoVerifier.sh && ./nyzoVerifier.sh && sudo cp nyzoVerifier.conf /etc/supervisor/conf.d/
+bash -c 'echo "znyber" > /var/lib/nyzo/production/nickname'
+supervisorctl reload
+echo "@reboot sudo supervisorctl reload" >> mycron
+crontab mycron
+rm mycron
+supervisorctl status
+cat /var/lib/nyzo/production/verifier_private_seed
